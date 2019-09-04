@@ -3,7 +3,7 @@ import pandas
 
 
 def generate(s):
-    data = pandas.read_csv('src/model/histo.csv')
+    data = pandas.read_csv('histo.csv')
     fileout = open(s, 'w')
     categories, sizes = data.shape
     colsums = data.sum(axis=0)[1:]

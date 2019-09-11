@@ -191,13 +191,16 @@ __device__ unsigned int dayofmonth(unsigned int step)
   return (step % 8064) / 288;
 }
 
-__device__ float cadgamma(float kk, float u, float v, float w)
+//__device__ float cadgamma(float kk, float u, float v, float w)
+__device__ float cadgamma(float kk, float u, float v, float w, const int limit = 1000)
 {
   float xi = 1.0;
   float eta = 1.0;
+  int ct = 0;
 
   while (eta > pow(xi, (kk - 1)) * exp(-xi))
   {
+	  ct++;
     if (u * (E + kk) < E)
     {
       xi = pow(v, 1 / kk);
@@ -208,6 +211,7 @@ __device__ float cadgamma(float kk, float u, float v, float w)
       xi = 1 - log(v);
       eta = w * v / E;
     }
+	if (ct > limit) break;
   }
 
   return xi;
@@ -787,7 +791,8 @@ __FLAME_GPU_INIT_FUNC__ void initialiseHost()
 
   // Populate the array of person ids with ids up to the total number of people,
   // and then shuffle it so households are assigned randomly.
-  for (unsigned int i = 1; i <= total; i++)
+  //for (unsigned int i = 1; i <= total; i++)
+  for (unsigned int i = 0; i < total; i++)
   {
     order[i] = i;
   }
@@ -943,7 +948,7 @@ __FLAME_GPU_INIT_FUNC__ void initialiseHost()
         h_hhmembership->churchgoing = churchgoing;
         h_hhmembership->churchfreq = churchfreq;
         h_hhmembership->household_size = i;
-        count++;
+        // count++;
 
         if (ages[count] >= 15)
         {
@@ -954,6 +959,8 @@ __FLAME_GPU_INIT_FUNC__ void initialiseHost()
         {
           h_household->active = 1;
         }
+
+		count++;
 
         h_add_agent_HouseholdMembership_hhmembershipdefault(h_hhmembership);
 
@@ -1807,7 +1814,7 @@ hhupdate(xmachine_memory_Household *household,
     {
       qsum += location_message->q;
     }
-    printf("%u", qsum);
+    // printf("%u", qsum); // not required
     location_message =
         get_next_location_message(location_message, location_messages);
   }
@@ -2115,7 +2122,8 @@ persontbinit(xmachine_memory_Person *person,
   float v = rnd<CONTINUOUS>(rand48);
   float w = rnd<CONTINUOUS>(rand48);
 
-  float dev = cadgamma(DELTA, u, v, w);
+  // float dev = cadgamma(DELTA, u, v, w);
+  float dev = cadgamma(DELTA, u, v, w, 1000);
   usum += dev;
 
   person->q = -usum * THETA;

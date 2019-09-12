@@ -10,6 +10,8 @@
 *.zip
 *.png
 *.dat
+*examples/doc/bug_report.md
+
 
 
 ######

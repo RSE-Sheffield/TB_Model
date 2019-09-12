@@ -1925,39 +1925,27 @@
       <gpu:layerFunction>
         <name>hhupdate</name>
       </gpu:layerFunction>
-    </layer>
-
-    <layer>
+   
       <gpu:layerFunction>
         <name>chuupdate</name>
       </gpu:layerFunction>
-    </layer>
-
-    <layer>
+  
       <gpu:layerFunction>
         <name>trupdate</name>
       </gpu:layerFunction>
-    </layer>
-
-    <layer>
+  
       <gpu:layerFunction>
         <name>clupdate</name>
       </gpu:layerFunction>
-    </layer>
 
-    <layer>
       <gpu:layerFunction>
         <name>wpupdate</name>
       </gpu:layerFunction>
-    </layer>
 
-    <layer>
       <gpu:layerFunction>
         <name>bupdate</name>
       </gpu:layerFunction>
-    </layer>
 
-    <layer>
       <gpu:layerFunction>
         <name>schupdate</name>
       </gpu:layerFunction>

@@ -433,6 +433,8 @@ __FLAME_GPU_INIT_FUNC__ void initialiseHost()
   unsigned int childcount = 0;
   unsigned int schoolarray[h_agent_AoS_MAX];
 
+  int counter = 0;
+
   for (unsigned int i = 0; i < 32; i++)
   {
     sizearray[i] = 0;
@@ -540,11 +542,11 @@ __FLAME_GPU_INIT_FUNC__ void initialiseHost()
 
         // Assign the variables for the person agent based on information from
         // the histogram.
-        h_person->id = getNextID();
-        h_person->age = age;
-        h_person->gender = gender;
-        h_person->householdsize = currentsize;
-        h_person->busy = 0;
+		h_agent_AoS[counter]->id = getNextID();
+		h_agent_AoS[counter]->age = age;
+		h_agent_AoS[counter]->gender = gender;
+		h_agent_AoS[counter]->householdsize = currentsize;
+		h_agent_AoS[counter]->busy = 0;
 
         // Decide whether the person is a transport user based on given input
         // probabilities.
@@ -572,167 +574,168 @@ __FLAME_GPU_INIT_FUNC__ void initialiseHost()
           }
           else if (random < transport_freq2)
           {
-            h_person->transportday1 = (rand() % 5) + 1;
-            h_person->transportday2 = -1;
+			h_agent_AoS[counter]->transportday1 = (rand() % 5) + 1;
+			h_agent_AoS[counter]->transportday2 = -1;
+			
 
-            transport[daycount] = h_person->id;
-            days[daycount] = h_person->transportday1;
+            transport[daycount] = h_agent_AoS[counter]->id;
+            days[daycount] = h_agent_AoS[counter]->transportday1;
 
             daycount++;
           }
           else
           {
-            h_person->transportday1 = (rand() % 5) + 1;
-            h_person->transportday2 = h_person->transportday1;
+			h_agent_AoS[counter]->transportday1 = (rand() % 5) + 1;
+			h_agent_AoS[counter]->transportday2 = h_agent_AoS[counter]->transportday1;
 
-            while (h_person->transportday2 == h_person->transportday1)
+            while (h_agent_AoS[counter]->transportday2 == h_agent_AoS[counter]->transportday1)
             {
-              h_person->transportday2 = (rand() % 5) + 1;
+				h_agent_AoS[counter]->transportday2 = (rand() % 5) + 1;
             }
 
-            transport[daycount] = h_person->id;
-            days[daycount] = h_person->transportday1;
+            transport[daycount] = h_agent_AoS[counter]->id;
+            days[daycount] = h_agent_AoS[counter]->transportday1;
 
             daycount++;
 
-            transport[daycount] = h_person->id;
-            days[daycount] = h_person->transportday2;
+            transport[daycount] = h_agent_AoS[counter]->id;
+            days[daycount] = h_agent_AoS[counter]->transportday2;
 
             daycount++;
           }
         }
         else
         {
-          h_person->transport = -1;
-          h_person->transportday1 = -1;
-          h_person->transportday2 = -1;
+		  h_agent_AoS[counter]->transport = -1;
+		  h_agent_AoS[counter]->transportday1 = -1;
+		  h_agent_AoS[counter]->transportday2 = -1;
         }
 
-        unsigned int sex = h_person->gender % 2;
+        unsigned int sex = h_agent_AoS[counter]->gender % 2;
         float workprob =
             1.0 /
-            (1 + exp(-workplace_beta0 - (workplace_betaa * h_person->age) -
+            (1 + exp(-workplace_beta0 - (workplace_betaa * h_agent_AoS[counter]->age) -
                      (workplace_betas * sex) -
-                     (workplace_betaas * sex * h_person->age)));
+                     (workplace_betaas * sex * h_agent_AoS[counter]->age)));
 
         random = ((float)rand() / (RAND_MAX));
 
-        if (random < workprob && h_person->age >= 18)
+        if (random < workprob && h_agent_AoS[counter]->age >= 18)
         {
-          workarray[employedcount] = h_person->id;
+          workarray[employedcount] = h_agent_AoS[counter]->id;
           employedcount++;
         }
 
         float barprob =
             1.0 /
-            (1 + exp(-bar_beta0 - (bar_betaa * h_person->age) -
-                     (bar_betas * sex) - (bar_betaas * sex * h_person->age)));
+            (1 + exp(-bar_beta0 - (bar_betaa * h_agent_AoS[counter]->age) -
+                     (bar_betas * sex) - (bar_betaas * sex * h_agent_AoS[counter]->age)));
 
         random = ((float)rand() / (RAND_MAX));
 
-        if (random < barprob && h_person->age >= 18)
+        if (random < barprob && h_agent_AoS[counter]->age >= 18)
         {
           random = ((float)rand() / (RAND_MAX));
-          h_person->bargoing = 1;
+		  h_agent_AoS[counter]->bargoing = 1;
 
           if (sex == 0)
           {
             if (random < bar_f_prob1)
             {
-              h_person->barday = 1;
+			  h_agent_AoS[counter]->barday = 1;
               barcount++;
             }
             else if (random < bar_f_prob2)
             {
-              h_person->barday = 2;
+			  h_agent_AoS[counter]->barday = 2;
               barcount += 2;
             }
             else if (random < bar_f_prob3)
             {
-              h_person->barday = 3;
+			  h_agent_AoS[counter]->barday = 3;
               barcount += 3;
             }
             else if (random < bar_f_prob4)
             {
-              h_person->barday = 4;
+				h_agent_AoS[counter]->barday = 4;
               barcount += 4;
             }
             else if (random < bar_f_prob5)
             {
-              h_person->barday = 5;
+				h_agent_AoS[counter]->barday = 5;
               barcount += 5;
             }
             else if (random < bar_f_prob7)
             {
-              h_person->barday = 7;
+				h_agent_AoS[counter]->barday = 7;
               barcount += 7;
             }
             else
             {
-              h_person->bargoing = 2;
-              h_person->barday = rand() % 28;
+				h_agent_AoS[counter]->bargoing = 2;
+				h_agent_AoS[counter]->barday = rand() % 28;
             }
           }
           else
           {
             if (random < bar_m_prob1)
             {
-              h_person->barday = 1;
+				h_agent_AoS[counter]->barday = 1;
               barcount++;
             }
             else if (random < bar_m_prob2)
             {
-              h_person->barday = 2;
+				h_agent_AoS[counter]->barday = 2;
               barcount += 2;
             }
             else if (random < bar_m_prob3)
             {
-              h_person->barday = 3;
+				h_agent_AoS[counter]->barday = 3;
               barcount += 3;
             }
             else if (random < bar_m_prob4)
             {
-              h_person->barday = 4;
+				h_agent_AoS[counter]->barday = 4;
               barcount += 4;
             }
             else if (random < bar_m_prob5)
             {
-              h_person->barday = 5;
+				h_agent_AoS[counter]->barday = 5;
               barcount += 5;
             }
             else if (random < bar_m_prob7)
             {
-              h_person->barday = 7;
+				h_agent_AoS[counter]->barday = 7;
               barcount += 7;
             }
             else
             {
-              h_person->bargoing = 2;
-              h_person->barday = rand() % 28;
+				h_agent_AoS[counter]->bargoing = 2;
+				h_agent_AoS[counter]->barday = rand() % 28;
             }
           }
         }
         else
         {
-          h_person->bargoing = 0;
+			h_agent_AoS[counter]->bargoing = 0;
         }
 
-        if (h_person->age < 18)
+        if (h_agent_AoS[counter]->age < 18)
         {
-          schoolarray[childcount] = h_person->id;
+          schoolarray[childcount] = h_agent_AoS[counter]->id;
           childcount++;
         }
 
         random = ((float)rand() / (RAND_MAX));
 
-        if ((random < hivprob) && (h_person->age >= 18))
+        if ((random < hivprob) && (h_agent_AoS[counter]->age >= 18))
         {
-          h_person->hiv = 1;
+			h_agent_AoS[counter]->hiv = 1;
 
           random = ((float)rand() / (RAND_MAX));
           if (random < art_coverage)
           {
-            h_person->art = 1;
+			  h_agent_AoS[counter]->art = 1;
             weight = rr_as * rr_hiv * rr_art;
 
             unsigned int randomday = rand() % 28;
@@ -742,37 +745,38 @@ __FLAME_GPU_INIT_FUNC__ void initialiseHost()
               randomday = rand() % 28;
             }
 
-            h_person->artday = randomday;
+			h_agent_AoS[counter]->artday = randomday;
           }
           else
           {
-            h_person->art = 0;
+			  h_agent_AoS[counter]->art = 0;
             weight = rr_as * rr_hiv;
           }
         }
         else
         {
-          h_person->hiv = 0;
-          h_person->art = 0;
+			h_agent_AoS[counter]->hiv = 0;
+			h_agent_AoS[counter]->art = 0;
           weight = rr_as;
         }
 
-        weights[h_person->id - 1] = weight;
+        weights[h_agent_AoS[counter]->id - 1] = weight;
 
         // Update the arrays of information with this person's household size
         // and age.
-        ages[h_person->id - 1] = age;
+        ages[h_agent_AoS[counter]->id - 1] = age;
         sizearray[currentsize]++;
-        sizesarray[h_person->id - 1] = currentsize;
+        sizesarray[h_agent_AoS[counter]->id - 1] = currentsize;
 
         // Generate the agent and free them from memory on the host.
-        h_person->lastinfected = -1;
-        h_person->lastinfectedid = -1;
-        h_person->lastinfectedtime = -1;
+		h_agent_AoS[counter]->lastinfected = -1;
+		h_agent_AoS[counter]->lastinfectedid = -1;
+		h_agent_AoS[counter]->lastinfectedtime = -1;
 
-        h_add_agent_Person_default(h_person);
+        //h_add_agent_Person_default(h_person);
 
-        h_free_agent_Person(&h_person);
+        //h_free_agent_Person(&h_person);
+		counter++;
       }
     }
   }
@@ -1257,6 +1261,8 @@ __FLAME_GPU_INIT_FUNC__ void initialiseHost()
   free(activepeople);
   free(hhorder);
 
+  // todo: h_add_agents_Person_default(h_agent_AoS, count);
+  // todo: remove all memberships and bring init functions inside here to reduce the number of extra messages and funcs
   fclose(file);
 }
 

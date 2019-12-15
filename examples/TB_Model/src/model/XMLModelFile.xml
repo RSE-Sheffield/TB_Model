@@ -927,11 +927,6 @@
           <name>persontbinit</name>
           <currentState>default</currentState>
           <nextState>default</nextState>
-          <inputs>
-            <gpu:input>
-              <messageName>tb_assignment</messageName>
-            </gpu:input>
-          </inputs>
           <gpu:reallocate>false</gpu:reallocate>
           <gpu:RNG>true</gpu:RNG>
         </gpu:function>
@@ -959,18 +954,6 @@
           <gpu:reallocate>false</gpu:reallocate>
           <gpu:RNG>false</gpu:RNG>
         </gpu:function>
-        <gpu:function>
-          <name>personschinit</name>
-          <currentState>default</currentState>
-          <nextState>default</nextState>
-          <inputs>
-            <gpu:input>
-              <messageName>school_membership</messageName>
-            </gpu:input>
-          </inputs>
-          <gpu:reallocate>false</gpu:reallocate>
-          <gpu:RNG>false</gpu:RNG>
-        </gpu:function>
       </functions>
 
       <!-- States that the agent can be in during a given iteration -->
@@ -988,44 +971,6 @@
       <gpu:type>continuous</gpu:type>
 
       <!-- The buffer size that should be allocated to the agent - unpredictable results if too many agents generated -->
-      <gpu:bufferSize>32768</gpu:bufferSize>
-    </gpu:xagent>
-
-    <gpu:xagent>
-      <name>TBAssignment</name>
-
-      <memory>
-        <gpu:variable>
-          <type>unsigned int</type>
-          <name>id</name>
-        </gpu:variable>
-      </memory>
-
-      <functions>
-        <gpu:function>
-          <name>tbinit</name>
-          <currentState>tbdefault</currentState>
-          <nextState>tbdefault</nextState>
-          <outputs>
-            <gpu:output>
-              <messageName>tb_assignment</messageName>
-              <gpu:type>single_message</gpu:type>
-            </gpu:output>
-          </outputs>
-          <gpu:reallocate>true</gpu:reallocate>
-          <gpu:RNG>false</gpu:RNG>
-        </gpu:function>
-      </functions>
-
-      <states>
-        <gpu:state>
-          <name>tbdefault</name>
-        </gpu:state>
-        <initialState>tbdefault</initialState>
-      </states>
-
-      <gpu:type>continuous</gpu:type>
-
       <gpu:bufferSize>32768</gpu:bufferSize>
     </gpu:xagent>
 
@@ -1594,50 +1539,6 @@
       <gpu:bufferSize>2048</gpu:bufferSize>
     </gpu:xagent>
 
-    <gpu:xagent>
-      <name>SchoolMembership</name>
-
-      <memory>
-        <gpu:variable>
-          <type>unsigned int</type>
-          <name>person_id</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>unsigned int</type>
-          <name>school_id</name>
-        </gpu:variable>
-      </memory>
-
-      <functions>
-        <gpu:function>
-          <name>schinit</name>
-          <currentState>schmembershipdefault</currentState>
-          <nextState>schmembershipdefault</nextState>
-          <outputs>
-            <gpu:output>
-              <messageName>school_membership</messageName>
-              <gpu:type>single_message</gpu:type>
-            </gpu:output>
-          </outputs>
-          <gpu:reallocate>true</gpu:reallocate>
-          <gpu:RNG>false</gpu:RNG>
-        </gpu:function>
-      </functions>
-
-      <states>
-        <gpu:state>
-          <name>schmembershipdefault</name>
-        </gpu:state>
-        <initialState>schmembershipdefault</initialState>
-      </states>
-
-      <gpu:type>continuous</gpu:type>
-
-      <gpu:bufferSize>16384</gpu:bufferSize>
-    </gpu:xagent>
-
-  </xagents>
-
   <!-- Messages sent by agents which can be read by other agents -->
   <messages>
 
@@ -1999,19 +1900,6 @@
       </gpu:layerFunction>
     </layer>
 
-
-    <layer>
-      <gpu:layerFunction>
-        <name>tbinit</name>
-      </gpu:layerFunction>
-    </layer>
-
-    <layer>
-      <gpu:layerFunction>
-        <name>schinit</name>
-      </gpu:layerFunction>
-    </layer>
-
     <layer>
       <gpu:layerFunction>
         <name>wpinit</name>
@@ -2033,18 +1921,6 @@
     <layer>
       <gpu:layerFunction>
         <name>hhinit</name>
-      </gpu:layerFunction>
-    </layer>
-
-    <layer>
-      <gpu:layerFunction>
-        <name>schinit</name>
-      </gpu:layerFunction>
-    </layer>
-
-    <layer>
-      <gpu:layerFunction>
-        <name>personschinit</name>
       </gpu:layerFunction>
     </layer>
 

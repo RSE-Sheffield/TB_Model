@@ -24,7 +24,7 @@ xmachine_memory_Workplace **h_workplace_AoS;
 xmachine_memory_Bar **h_bar_AoS;
 xmachine_memory_School **h_school_AoS;
 
-xmachine_memory_TBAssignment **h_tbassignment_AoS;
+//xmachine_memory_TBAssignment **h_tbassignment_AoS;
 xmachine_memory_HouseholdMembership **h_hhmembership_AoS;
 xmachine_memory_ChurchMembership **h_chumembership_AoS;
 xmachine_memory_TransportMembership **h_trmembership_AoS;
@@ -40,7 +40,7 @@ const unsigned int h_workplace_AoS_MAX = 8192;
 const unsigned int h_bar_AoS_MAX = 4096;
 const unsigned int h_school_AoS_MAX = 2048;
 
-const unsigned int h_tbassignment_AoS_MAX = 32768;
+//const unsigned int h_tbassignment_AoS_MAX = 32768;
 const unsigned int h_hhmembership_AoS_MAX = 32768;
 const unsigned int h_chumembership_AoS_MAX = 8192;
 const unsigned int h_trmembership_AoS_MAX = 32768;
@@ -361,9 +361,10 @@ __FLAME_GPU_INIT_FUNC__ void initialiseHost()
   h_nextBarID = 1;
 
   h_bar_AoS = h_allocate_agent_Bar_array(h_bar_AoS_MAX);
-
+/*
   h_tbassignment_AoS =
       h_allocate_agent_TBAssignment_array(h_tbassignment_AoS_MAX);
+*/
   h_hhmembership_AoS =
       h_allocate_agent_HouseholdMembership_array(h_hhmembership_AoS_MAX);
   h_chumembership_AoS =
@@ -495,7 +496,7 @@ __FLAME_GPU_INIT_FUNC__ void initialiseHost()
         float weight;
 
         // Allocate memory for the agent we are generating.
-        xmachine_memory_Person *h_person = h_allocate_agent_Person();
+        //xmachine_memory_Person *h_person = h_allocate_agent_Person();
 
         // Pick a random age for the person between the bounds of the age
         // interval they belong to.
@@ -772,10 +773,8 @@ __FLAME_GPU_INIT_FUNC__ void initialiseHost()
 		h_agent_AoS[counter]->lastinfected = -1;
 		h_agent_AoS[counter]->lastinfectedid = -1;
 		h_agent_AoS[counter]->lastinfectedtime = -1;
+		h_agent_AoS[counter]->school = -1;
 
-        //h_add_agent_Person_default(h_person);
-
-        //h_free_agent_Person(&h_person);
 		counter++;
       }
     }
@@ -818,7 +817,6 @@ __FLAME_GPU_INIT_FUNC__ void initialiseHost()
 
   unsigned int tbnumber = ceil(total * tb_prevalence);
 
- // unsigned int activepeople[xmachine_memory_Person_MAX]; // total
   unsigned int* activepeople = (unsigned int*)malloc(total * sizeof(unsigned int));
 
   for (unsigned int i = 0; i < total; i++)
@@ -835,18 +833,14 @@ __FLAME_GPU_INIT_FUNC__ void initialiseHost()
     {
       if (randomweight < weights[j])
       {
-
-        xmachine_memory_TBAssignment *h_tbassignment =
-            h_allocate_agent_TBAssignment();
-
-        h_tbassignment->id = tbarray[j];
+        //h_tbassignment->id = tbarray[j];
         activepeople[tbarray[j]] = 1;
         weightsum -= weights[j];
         weights[j] = 0.0;
 
-        h_add_agent_TBAssignment_tbdefault(h_tbassignment);
-
-        h_free_agent_TBAssignment(&h_tbassignment);
+	//if (tbarray[j] == personid)
+			assert(h_agent_AoS[j]->id == tbarray[j]);
+			h_agent_AoS[j]->activetb = 1;
         break;
       }
 
@@ -945,6 +939,7 @@ __FLAME_GPU_INIT_FUNC__ void initialiseHost()
       // track of how many of them are adults.
       for (unsigned int k = 0; k < i; k++)
       {
+		  int agent_id = order[count]+1;
         xmachine_memory_HouseholdMembership *h_hhmembership =
             h_allocate_agent_HouseholdMembership();
         h_hhmembership->household_id = h_household->id;
@@ -1206,17 +1201,16 @@ __FLAME_GPU_INIT_FUNC__ void initialiseHost()
     for (unsigned int j = 0; j < school_size; j++)
     {
       if (childpos <= childcount)
-      {
-        xmachine_memory_SchoolMembership *h_schmembership =
-            h_allocate_agent_SchoolMembership();
-
-        h_schmembership->school_id = h_school->id;
-        h_schmembership->person_id = schoolarray[childpos];
-        childpos++;
-
-        h_add_agent_SchoolMembership_schmembershipdefault(h_schmembership);
-
-        h_free_agent_SchoolMembership(&h_schmembership);
+      {      
+ // recheck the indices
+		for (int temp = 0; temp < total ; temp++) {
+			if (schoolarray[childpos] == h_agent_AoS[temp]->id)
+			{
+				h_agent_AoS[temp]->school = h_school->id;
+				break;
+			}        
+		}
+		childpos++;
       }
     }
 
@@ -1261,7 +1255,8 @@ __FLAME_GPU_INIT_FUNC__ void initialiseHost()
   free(activepeople);
   free(hhorder);
 
-  // todo: h_add_agents_Person_default(h_agent_AoS, count);
+  h_add_agents_Person_default(h_agent_AoS, counter); // h_agent_AoS_MAX
+
   // todo: remove all memberships and bring init functions inside here to reduce the number of extra messages and funcs
   fclose(file);
 }
@@ -1368,7 +1363,7 @@ __FLAME_GPU_EXIT_FUNC__ void exitFunction()
   h_free_agent_Transport_array(&h_transport_AoS, h_transport_AoS_MAX);
   h_free_agent_Workplace_array(&h_workplace_AoS, h_workplace_AoS_MAX);
   h_free_agent_Bar_array(&h_bar_AoS, h_bar_AoS_MAX);
-  h_free_agent_TBAssignment_array(&h_tbassignment_AoS, h_tbassignment_AoS_MAX);
+  //h_free_agent_TBAssignment_array(&h_tbassignment_AoS, h_tbassignment_AoS_MAX);
   h_free_agent_HouseholdMembership_array(&h_hhmembership_AoS,
                                          h_hhmembership_AoS_MAX);
   h_free_agent_ChurchMembership_array(&h_chumembership_AoS,
@@ -2019,7 +2014,7 @@ schupdate(xmachine_memory_School *school,
 
   return 0;
 }
-
+/*
 __FLAME_GPU_FUNC__ int
 tbinit(xmachine_memory_TBAssignment *tbassignment,
        xmachine_message_tb_assignment_list *tb_assignment_messages)
@@ -2027,7 +2022,7 @@ tbinit(xmachine_memory_TBAssignment *tbassignment,
   add_tb_assignment_message(tb_assignment_messages, tbassignment->id);
   return 1;
 }
-
+*/
 __FLAME_GPU_FUNC__ int wpinit(
     xmachine_memory_WorkplaceMembership *wpmembership,
     xmachine_message_workplace_membership_list *workplace_membership_messages)
@@ -2037,7 +2032,7 @@ __FLAME_GPU_FUNC__ int wpinit(
                                    wpmembership->workplace_id);
   return 1;
 }
-
+/*
 __FLAME_GPU_FUNC__ int
 schinit(xmachine_memory_SchoolMembership *schmembership,
         xmachine_message_school_membership_list *school_membership_messages)
@@ -2047,7 +2042,7 @@ schinit(xmachine_memory_SchoolMembership *schmembership,
                                 schmembership->school_id);
   return 1;
 }
-
+*/
 __FLAME_GPU_FUNC__ int trinit(
     xmachine_memory_TransportMembership *trmembership,
     xmachine_message_transport_membership_list *transport_membership_messages)
@@ -2098,9 +2093,9 @@ __FLAME_GPU_FUNC__ int hhinit(
   return 1;
 }
 
+
 __FLAME_GPU_FUNC__ int
 persontbinit(xmachine_memory_Person *person,
-             xmachine_message_tb_assignment_list *tb_assignment_messages,
              RNG_rand48 *rand48)
 {
   unsigned int personid = person->id;
@@ -2134,43 +2129,10 @@ persontbinit(xmachine_memory_Person *person,
 
   person->q = -usum * THETA;
 
-  xmachine_message_tb_assignment *tb_assignment_message =
-      get_first_tb_assignment_message(tb_assignment_messages);
-
-  while (tb_assignment_message)
-  {
-    if (tb_assignment_message->id == personid)
-    {
-      person->activetb = 1;
-    }
-    tb_assignment_message = get_next_tb_assignment_message(
-        tb_assignment_message, tb_assignment_messages);
-  }
-
   return 0;
 }
 
-__FLAME_GPU_FUNC__ int personschinit(
-    xmachine_memory_Person *person,
-    xmachine_message_school_membership_list *school_membership_messages)
-{
-  unsigned int personid = person->id;
-  person->school = -1;
-  xmachine_message_school_membership *school_membership_message =
-      get_first_school_membership_message(school_membership_messages);
 
-  while (school_membership_message)
-  {
-    if (school_membership_message->person_id == personid)
-    {
-      person->school = school_membership_message->school_id;
-    }
-    school_membership_message = get_next_school_membership_message(
-        school_membership_message, school_membership_messages);
-  }
-
-  return 0;
-}
 
 __FLAME_GPU_FUNC__ int personwpinit(
     xmachine_memory_Person *person,
